@@ -27,6 +27,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             let growing = true;
             const textElement = document.getElementById('countdown');
+            const audio = document.getElementById('weddingAudio');
+
+            // ניסיון להפעיל מוזיקה אוטומטית
+            const playAudio = () => {
+                audio.play().catch(e => {
+                    console.log('Autoplay blocked, waiting for user interaction');
+                });
+            };
+
+            // הפעלת מוזיקה בקליק או מגע ראשון
+            const enableAudio = () => {
+                playAudio();
+                document.removeEventListener('click', enableAudio);
+                document.removeEventListener('touchstart', enableAudio);
+            };
+            
+            document.addEventListener('click', enableAudio);
+            document.addEventListener('touchstart', enableAudio);
+
+            // ניסיון ראשוני להפעיל מוזיקה
+            setTimeout(playAudio, 1000);
 
             setInterval(() => {
                 const currentSize = parseFloat(window.getComputedStyle(textElement).fontSize);
@@ -42,12 +63,17 @@
     </script>
 </head>
 <body style="text-align: center; height: 100%; background-image: url('x.png'); background-position: center; color: aliceblue; font: bold 70px arial ">
-    <audio controls autoplay>
+    <audio id="weddingAudio" controls autoplay loop preload="auto">
         <source src="חופה.mp3" type="audio/mpeg">
         <source src="חופה.mp3" type="audio/ogg">
+        הדפדפן שלך לא תומך בהשמעת שמע.
     </audio>
     <h1 style="margin-top: 80px;">ה-ח-ת-ו-נ-ה</h1>
     <div id="countdown" style="color:black"></div>
+
+    <div style="margin-top: 20px; font-size: 16px; color: white;">
+        <p>לחצו בכל מקום כדי להפעיל מוזיקה 🎵</p>
+    </div>
 
 </body>
 </html>
