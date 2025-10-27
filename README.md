@@ -1,40 +1,74 @@
 # חתונה (Wedding) Project
 
-This repository contains a Visual Basic.NET web application and console application project.
+אתר ספירה לאחור לחתונה עם אפשרות התאמה אישית לכל זוג.
 
-## Projects
+## 🌟 תכונות
 
-### WebApplication1
-A VB.NET web application built with ASP.NET Framework.
+### 📅 ספירה לאחור דינמית
+- ספירה לאחור בזמן אמת לתאריך החתונה
+- תצוגה בעברית: ימים, שעות, דקות, שניות
+- אנימציה דינמית של הטקסט
 
-**Files:**
-- `index.html` - Main HTML page
-- `style.css` - Stylesheet
-- `Web.config` - Application configuration
-- Various VB.NET source files in the "My Project" folder
+### 🎵 מוזיקה אוטומטית
+- ניגון אוטומטי של מוזיקת רקע
+- תמיכה בדפדפנים שחוסמים autoplay
+- לולאה רציפה של המוזיקה
 
-### ConsoleApp1
-A VB.NET console application targeting .NET 8.0.
+### ⚙️ התאמה אישית
+- **100 שניות ראשונות**: אפשרות לשנות תאריך וזמן
+- שמירה מקומית של ההגדרות (localStorage)
+- אחרי 100 שניות - האתר הופך ל-read-only
 
-**Files:**
-- `Program.vb` - Main program entry point
-- `ConsoleApp1.vbproj` - Project file
+## 🚀 שימוש
 
-## Build and Run
+### אפשרות 1: עותק אישי (מומלץ)
+1. לחץ על **"Use this template"** בראש הדף
+2. צור רפוזיטורי חדש עם השם שלך
+3. הפעל GitHub Pages ב-Settings > Pages
+4. בקר באתר שלך ב-`https://yourusername.github.io/yourreponame`
+5. שנה את התאריך בתוך 100 השניות הראשונות
+6. שתף את הקישור עם המוזמנים!
 
-### WebApplication1
-Open the solution in Visual Studio and run the web application.
+### אפשרות 2: שימוש ישיר
+1. בקר ב-https://rachelirc.github.io/wedding
+2. שנה את התאריך בתוך 100 השניות הראשונות
+3. ההגדרות יישמרו במכשיר שלך
 
-### ConsoleApp1
-Use .NET CLI:
+## 📱 תמיכה
+- ✅ כל הדפדפנים המודרניים
+- ✅ מכשירים ניידים וטאבלטים
+- ✅ עבודה ללא אינטרנט אחרי טעינה ראשונה
+
+## 🛠️ פיתוח טכני
+
+### Projects
+
+#### WebApplication1
+VB.NET web application עם ASP.NET Framework (לפיתוח מקומי)
+
+#### ConsoleApp1  
+VB.NET console application עם .NET 8.0
+
+### Requirements
+- Visual Studio 2019+ (לפיתוח)
+- .NET Framework 4.7.2+ / .NET 8.0
+- GitHub Pages (לאירוח)
+
+## 📂 מבנה קבצים
 ```
-dotnet run --project ConsoleApp1
+├── index.html          # האתר הראשי
+├── style.css          # עיצוב
+├── חופה.mp3           # מוזיקת רקע
+├── x.png, y.png       # תמונות רקע
+└── README.md          # תיעוד זה
 ```
 
-## Requirements
-- Visual Studio 2019 or later
-- .NET Framework 4.7.2+ (for WebApplication1)
-- .NET 8.0 SDK (for ConsoleApp1)
+## 🎉 תכונות מתקדמות
+- שמירה אוטומטית של הגדרות המשתמש
+- התאמה אוטומטית לגדלי מסך שונים
+- אנימציות CSS וספירה חלקה
+- תמיכה בזמנים ותאריכים עבריים
 
-## Assets
-The project includes image files (`x.png`, `y.png`) and an audio file (`חופה.mp3`).
+---
+
+💒 **מזל טוב לכל הזוגות!** 💒

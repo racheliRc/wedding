@@ -6,59 +6,117 @@
     <title></title>
 
     <script>
-        const countDownDate = new Date("Jun 25, 2026 19:00:00").getTime();
-        const x = setInterval(function () {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById("countdown").innerHTML =
-                "<strong>" + days + ": " + hours + ": " + minutes + ": " + seconds + "</strong>" + "<br>" +
-                "<small>שניות    דקות    שעות    ימים</small>";
+        // ברירת המחדל - ניתן לשינוי
+        let countDownDate = new Date("Jun 25, 2026 19:00:00").getTime();
+        let x;
+        let animationStarted = false;
 
-            if (distance < 0) {
-                clearInterval(x);
-                document.getElementById("countdown").innerHTML = "כבר זוצים:)";
+        // טעינת תאריך שמור מ-localStorage
+        const savedDate = localStorage.getItem('weddingDate');
+        if (savedDate) {
+            countDownDate = new Date(savedDate).getTime();
+        }
+
+        function startCountdown() {
+            clearInterval(x);
+            x = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("countdown").innerHTML =
+                    "<strong>" + days + ": " + hours + ": " + minutes + ": " + seconds + "</strong>" + "<br>" +
+                    "<small>שניות    דקות    שעות    ימים</small>";
+
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById("countdown").innerHTML = "כבר זוצים:)";
+                }
+            }, 1000);
+        }
+
+        function changeDate() {
+            const newDate = document.getElementById("datePicker").value;
+            const newTime = document.getElementById("timePicker").value || "19:00";
+            if (newDate) {
+                countDownDate = new Date(newDate + " " + newTime + ":00").getTime();
+                localStorage.setItem('weddingDate', new Date(countDownDate).toString());
+                document.getElementById("currentDate").textContent = 
+                    new Date(countDownDate).toLocaleDateString('he-IL') + " " + newTime;
             }
-        }, 1000);
+        }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function resetDate() {
+            localStorage.removeItem('weddingDate');
+            countDownDate = new Date("Jun 25, 2026 19:00:00").getTime();
+            document.getElementById("datePicker").value = "";
+            document.getElementById("timePicker").value = "19:00";
+            document.getElementById("currentDate").textContent = "25/06/2026 19:00";
+        }
+
+        function startWeddingCountdown() {
+            // הסתרת פאנל ההגדרות
+            document.getElementById("settingsPanel").style.display = "none";
+            document.getElementById("startMessage").style.display = "none";
+            
+            // התחלת הספירה לאחור
+            startCountdown();
+            animationStarted = true;
+            
+            // הצגת הספירה
+            document.getElementById("countdown").style.display = "block";
+            
+            // התחלת אנימציות הטקסט
+            startTextAnimation();
+            
+            // הפעלת מוזיקה
+            const audio = document.getElementById('weddingAudio');
+            audio.play().catch(e => {
+                console.log('Autoplay blocked');
+            });
+        }
+
+        function startTextAnimation() {
             let growing = true;
             const textElement = document.getElementById('countdown');
-            const audio = document.getElementById('weddingAudio');
-
-            // ניסיון להפעיל מוזיקה אוטומטית
-            const playAudio = () => {
-                audio.play().catch(e => {
-                    console.log('Autoplay blocked, waiting for user interaction');
-                });
-            };
-
-            // הפעלת מוזיקה בקליק או מגע ראשון
-            const enableAudio = () => {
-                playAudio();
-                document.removeEventListener('click', enableAudio);
-                document.removeEventListener('touchstart', enableAudio);
-            };
             
-            document.addEventListener('click', enableAudio);
-            document.addEventListener('touchstart', enableAudio);
-
-            // ניסיון ראשוני להפעיל מוזיקה
-            setTimeout(playAudio, 1000);
-
             setInterval(() => {
-                const currentSize = parseFloat(window.getComputedStyle(textElement).fontSize);
-                if (growing) {
-                    textElement.style.fontSize = (currentSize + 2) + 'px'; // הגדלה
-                    if (currentSize > 120) growing = false; // אם הגיע לגובה מסוים, התחל להקטין
-                } else {
-                    textElement.style.fontSize = (currentSize - 2) + 'px'; // הקטנה
-                    if (currentSize < 20) growing = true; // אם הגיע לגובה מסוים, התחל להגדיל
+                if (animationStarted) {
+                    const currentSize = parseFloat(window.getComputedStyle(textElement).fontSize);
+                    if (growing) {
+                        textElement.style.fontSize = (currentSize + 2) + 'px';
+                        if (currentSize > 120) growing = false;
+                    } else {
+                        textElement.style.fontSize = (currentSize - 2) + 'px';
+                        if (currentSize < 20) growing = true;
+                    }
                 }
-            }, 85); // עדכון כל 100 מילישניות
+            }, 85);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // עדכון התאריך הנוכחי בתצוגה
+            document.getElementById("currentDate").textContent = 
+                new Date(countDownDate).toLocaleDateString('he-IL') + " " + 
+                new Date(countDownDate).toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'});
+
+            // הסתרת הספירה בהתחלה
+            document.getElementById("countdown").style.display = "none";
+
+            // הוספת מאזין ללחיצת Enter בשדות הקלט
+            document.getElementById("datePicker").addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startWeddingCountdown();
+                }
+            });
+            
+            document.getElementById("timePicker").addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startWeddingCountdown();
+                }
+            });
         });
     </script>
 </head>
@@ -69,10 +127,47 @@
         הדפדפן שלך לא תומך בהשמעת שמע.
     </audio>
     <h1 style="margin-top: 80px;">ה-ח-ת-ו-נ-ה</h1>
-    <div id="countdown" style="color:black"></div>
+    
+    <!-- הודעת התחלה -->
+    <div id="startMessage" style="margin-top: 20px; color: white; font-size: 18px;">
+        <p>🎉 ברוכים הבאים לספירה לאחור לחתונה! 🎉</p>
+        <p>הגדירו את התאריך והשעה ולחצו על התחל</p>
+    </div>
+
+    <!-- פאנל הגדרות -->
+    <div id="settingsPanel" style="margin-top: 30px; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; display: inline-block; color: black; font-size: 16px;">
+        <h3 style="margin-top: 0;">⚙️ הגדרות החתונה</h3>
+        <p style="margin: 5px 0;"><strong>תאריך נוכחי:</strong> <span id="currentDate">25/06/2026 19:00</span></p>
+        
+        <div style="margin: 15px 0;">
+            <label><strong>תאריך החתונה: </strong></label><br>
+            <input type="date" id="datePicker" style="font-size: 16px; padding: 8px; margin-top: 5px;" placeholder="בחרו תאריך">
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <label><strong>שעת החתונה: </strong></label><br>
+            <input type="time" id="timePicker" value="19:00" style="font-size: 16px; padding: 8px; margin-top: 5px;">
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="changeDate()" style="font-size: 16px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">💾 שמור תאריך</button>
+            <button onclick="resetDate()" style="font-size: 16px; padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">🔄 איפוס</button>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd;">
+            <button onclick="startWeddingCountdown()" style="font-size: 18px; padding: 15px 30px; background: #FF6B6B; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">� התחל ספירה לאחור!</button>
+        </div>
+        
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            💡 טיפ: לחצו Enter בשדות או על כפתור ההתחלה
+        </div>
+    </div>
+
+    <!-- ספירה לאחור - מוסתרת בהתחלה -->
+    <div id="countdown" style="color:black; display:none;"></div>
 
     <div style="margin-top: 20px; font-size: 16px; color: white;">
-        <p>לחצו בכל מקום כדי להפעיל מוזיקה 🎵</p>
+        <p>🎵 המוזיקה תתחיל אוטומטית עם הספירה</p>
     </div>
 
 </body>
