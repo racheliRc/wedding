@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+
+    <script>
+        const countDownDate = new Date("Oct 25, 2026 19:00:00").getTime();
+        const x = setInterval(function () {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("countdown").innerHTML =
+                "<strong>" + days + ": " + hours + ": " + minutes + ": " + seconds + "</strong>" + "<br>" +
+                "<small>שניות    דקות    שעות    ימים</small>";
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "כבר זוצים:)";
+            }
+        }, 1000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let growing = true;
+            const textElement = document.getElementById('countdown');
+
+            setInterval(() => {
+                const currentSize = parseFloat(window.getComputedStyle(textElement).fontSize);
+                if (growing) {
+                    textElement.style.fontSize = (currentSize + 2) + 'px'; // הגדלה
+                    if (currentSize > 120) growing = false; // אם הגיע לגובה מסוים, התחל להקטין
+                } else {
+                    textElement.style.fontSize = (currentSize - 2) + 'px'; // הקטנה
+                    if (currentSize < 20) growing = true; // אם הגיע לגובה מסוים, התחל להגדיל
+                }
+            }, 85); // עדכון כל 100 מילישניות
+        });
+    </script>
+</head>
+<body style="text-align: center; height: 100%; background-image: url('x.png'); background-position: center; color: aliceblue; font: bold 70px arial ">
+    <audio controls autoplay>
+        <source src="חופה.mp3" type="audio/mpeg">
+        <source src="חופה.mp3" type="audio/ogg">
+    </audio>
+    <h1 style="margin-top: 80px;">ה-ח-ת-ו-נ-ה</h1>
+    <div id="countdown" style="color:black"></div>
+
+</body>
+</html>
+
+<!--<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+
+    <script>
+        let countDownDate = new Date("Oct 25, 2026 19:00:00").getTime();
+        let x;
+
+        function startCountdown() {
+            clearInterval(x); // מנקה את ה-countdown הקודם
+            x = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("countdown").innerHTML =
+                    "<strong>" + days + ": " + hours + ": " + minutes + ": " + seconds + "</strong>" + "<br>" +
+                    "<small>שניות    דקות    שעות    ימים</small>";
+
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById("countdown").innerHTML = "כבר זוצים:)";
+                }
+            }, 1000);
+        }
+
+        function changeDate() {
+            const newDate = document.getElementById("datePicker").value;
+            if (newDate) {
+                countDownDate = new Date(newDate + " 19:00:00").getTime(); // מעדכן את התאריך
+                startCountdown(); // מתחיל את ה-countdown מחדש
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startCountdown();
+            let growing = true;
+            const textElement = document.getElementById('countdown');
+
+            setInterval(() => {
+                const currentSize = parseFloat(window.getComputedStyle(textElement).fontSize);
+                if (growing) {
+                    textElement.style.fontSize = (currentSize + 2) + 'px'; // הגדלה
+                    if (currentSize > 120) growing = false; // אם הגיע לגובה מסוים, התחל להקטין
+                } else {
+                    textElement.style.fontSize = (currentSize - 2) + 'px'; // הקטנה
+                    if (currentSize < 20) growing = true; // אם הגיע לגובה מסוים, התחל להגדיל
+                }
+            }, 85); // עדכון כל 100 מילישניות
+        });
+    </script>
+</head>
+<body style="text-align: center; height: 100%; background-image: url('x.png'); background-position: center; color: aliceblue; font: bold 70px arial ">
+    <audio controls autoplay>
+        <source src="חופה.mp3" type="audio/mpeg">
+        <source src="חופה.mp3" type="audio/ogg">
+    </audio>
+    <h1 style="margin-top: 80px;">ה-ח-ת-ו-נ-ה</h1>
+    <div id="countdown" style="color:black"></div>
+    <br>
+    <input type="date" id="datePicker" style="font-size: 20px;">
+    <button onclick="changeDate()" style="font-size: 20px;">שינוי תאריך</button>
+</body>
+</html>-->
