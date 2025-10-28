@@ -43,6 +43,24 @@
                 countDownDate = new Date(newDate + " " + newTime + ":00").getTime();
                 localStorage.setItem('weddingDate', new Date(countDownDate).toString());
             }
+            updateCurrentDateDisplay();
+        }
+        // עדכון תאריך נוכחי מהאחסון המקומי
+        function updateCurrentDateDisplay() {
+            const el = document.getElementById("currentDate");
+            const saved = localStorage.getItem('weddingDate');
+            if (saved) {
+                const d = new Date(saved);
+                // פורמט DD/MM/YYYY HH:MM
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                el.textContent = `${day}/${month}/${year} ${hours}:${minutes}`;
+            } else {
+                el.textContent = "לא נבחר תאריך";
+            }
         }
 
         function changeTitle() {
@@ -53,27 +71,106 @@
                 if (titleEl) titleEl.textContent = newTitle;
                 document.title = newTitle;
             }
+            updateCurrentTitleDisplay();
+        }
+
+        // עדכון הכותרת הנוכחית מהאחסון המקומי
+        function updateCurrentTitleDisplay() {
+            const el = document.getElementById('currentTitle');
+            if (!el) return;
+            const saved = localStorage.getItem('weddingTitle');
+            el.textContent = saved && saved.trim() ? saved : 'ה-ח-ת-ו-נ-ה';
+        }
+
+        // עדכון רקע נוכחי מהאחסון המקומי (טקסט תיאורי)
+        function updateCurrentBackgroundDisplay() {
+            const el = document.getElementById('currentBackground');
+            if (!el) return;
+            const saved = localStorage.getItem('weddingBackground');
+            const savedName = localStorage.getItem('weddingBackgroundName');
+            if (saved && savedName) {
+                // הצג את שם הקובץ (קצר אם ארוך מדי)
+                const name = savedName.length > 30 ? savedName.slice(0,27) + '...' : savedName;
+                el.textContent =  name;
+            } else if (saved) {
+                el.textContent = 'תמונה מותאמת אישית';
+            } else {
+                el.textContent = 'כסא כלה';
+            }
         }
 
         function changeBackground() {
             const fileInput = document.getElementById("backgroundInput");
             const file = fileInput.files[0];
-            
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imageUrl = e.target.result;
-                    // שמירה על כל ההגדרות המקוריות של הרקע
-                    document.body.style.backgroundImage = `url(${imageUrl})`;
-                    document.body.style.backgroundPosition = "center";
-                    document.body.style.backgroundSize = "cover";
-                    document.body.style.backgroundRepeat = "no-repeat";
-                    document.body.style.backgroundAttachment = "fixed";
-                    
-                    localStorage.setItem('weddingBackground', imageUrl);
+                    const imageDataUrl = e.target.result;
+                    // נסה לדחוס את התמונה לפני השמירה כדי להימנע ממחסור במקום ב-localStorage
+                    compressAndSaveImage(imageDataUrl, 1600, 0.8)
+                            .then(savedDataUrl => {
+                                // שמירת שם הקובץ לשם הצגה
+                                try { localStorage.setItem('weddingBackgroundName', file.name); } catch (e) { /* noop */ }
+                                document.body.style.backgroundImage = `url(${savedDataUrl})`;
+                                document.body.style.backgroundPosition = "center";
+                                document.body.style.backgroundSize = "cover";
+                                document.body.style.backgroundRepeat = "no-repeat";
+                                document.body.style.backgroundAttachment = "fixed";
+                                updateCurrentBackgroundDisplay();
+                            })
+                        .catch(err => {
+                            alert('שגיאה בשמירת התמונה: ' + (err && err.message ? err.message : err));
+                        });
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        // דחיסה ושמירה של DataURL לתוך localStorage (מקטין מימדים ואיכות)
+        function compressAndSaveImage(dataUrl, maxDim = 1600, quality = 0.8) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = function() {
+                    // לחשב גודל חדש שמכבד את היחס המקורי
+                    let { width, height } = img;
+                    if (width > maxDim || height > maxDim) {
+                        const ratio = width / height;
+                        if (ratio > 1) {
+                            width = maxDim;
+                            height = Math.round(maxDim / ratio);
+                        } else {
+                            height = maxDim;
+                            width = Math.round(maxDim * ratio);
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    try {
+                        const compressed = canvas.toDataURL('image/jpeg', quality);
+                        try {
+                            localStorage.setItem('weddingBackground', compressed);
+                            resolve(compressed);
+                        } catch (e) {
+                            // אם חריג של מקום - נסה עם איכות נמוכה יותר
+                            if (quality > 0.2) {
+                                // נסה שוב עם איכות קטנה בחצי
+                                compressAndSaveImage(dataUrl, maxDim, Math.max(0.2, quality - 0.25))
+                                    .then(resolve)
+                                    .catch(reject);
+                            } else {
+                                reject(new Error('אין מספיק מקום ב-localStorage כדי לשמור את התמונה'));
+                            }
+                        }
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                img.onerror = function() { reject(new Error('לא ניתן לקרוא את קובץ התמונה')); };
+                img.src = dataUrl;
+            });
         }
 
         function resetBackground() {
@@ -85,8 +182,10 @@
             document.body.style.backgroundAttachment = "fixed";
             
             localStorage.removeItem('weddingBackground');
+            localStorage.removeItem('weddingBackgroundName');
             const bgInput = document.getElementById("backgroundInput");
             if (bgInput) bgInput.value = "";
+            updateCurrentBackgroundDisplay();
         }
 
         function resetDate() {
@@ -94,7 +193,7 @@
             countDownDate = new Date("Jun 25, 2026 19:00:00").getTime();
             document.getElementById("datePicker").value = "";
             document.getElementById("timePicker").value = "19:00";
-            // אין אלמנט להצגת תאריך כרגע
+            updateCurrentDateDisplay();
         }
 
         function resetTitle() {
@@ -103,6 +202,7 @@
             if (titleEl2) titleEl2.textContent = "ה-ח-ת-ו-נ-ה";
             document.title = "ספירה לחתונה";
             document.getElementById("titleInput").value = "";
+            updateCurrentTitleDisplay();
         }
 
         function resetAll() {
@@ -151,6 +251,9 @@
         window.addEventListener('DOMContentLoaded', function() {
             // טעינת הגדרות שמורות
             loadSavedSettings();
+            updateCurrentDateDisplay();
+            updateCurrentTitleDisplay();
+            updateCurrentBackgroundDisplay();
 
             // הסתרת הספירה בהתחלה
             document.getElementById("countdown").style.display = "none";
@@ -210,7 +313,7 @@
         <!-- הגדרות תאריך -->
         <div style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
             <h4 style="margin: 10px 0; color: #555; font-size: 15px;">📅 זמן החתונה</h4>
-            <p style="margin: 5px 0; font-size: 14px;"><strong>תאריך נוכחי:</strong> <span id="currentDate">01/01/2026 19:00</span></p>
+            <p style="margin: 5px 0; font-size: 14px;"><strong>תאריך נוכחי:</strong> <span id="currentDate">לא נבחר תאריך</span></p>
             
             <div style="margin: 10px 0;">
                 <label style="font-size: 13px;"><strong>תאריך החתונה: </strong></label><br>
