@@ -248,6 +248,16 @@
             }, 85);
         }
 
+        // פונקציה להצגה/הסתרה של פאנל ההגדרות
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', function() {
             // טעינת הגדרות שמורות
             loadSavedSettings();
@@ -261,13 +271,10 @@
             // משתנה לבדיקה אם הספירה כבר התחילה
             window.countdownStarted = false;
 
-            // לחיצה על Enter תתחיל ספירה רק אם הפאנל מוצג
+            // לחיצה על Enter תתחיל ספירה בכל מקום בדף
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !window.countdownStarted) {
-                    const panel = document.getElementById('settingsPanel');
-                    if (panel && panel.style.display !== 'none') {
-                        startWeddingCountdown();
-                    }
+                    startWeddingCountdown();
                 }
             });
         });
@@ -301,15 +308,24 @@
         <source src="חופה.mp3" type="audio/mpeg">
         <source src="חופה.mp3" type="audio/ogg">
     </audio>
+    <!-- כפתור הגדרות בפינה השמאלית למעלה -->
+    <button id="settingsButton" onclick="toggleSettings()" style="position: fixed; top: 40px; left: 20px; background: rgba(255,255,255,0.9); color: #333; border: none; border-radius: 8px; padding: 8px 12px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1001; font-weight: bold;">⚙️ הגדרות</button>
+    
+    <!-- הוראות שימוש -->
+    <div style="position: fixed; top: 85px; left: 20px; background: rgba(255,255,255,0.8); color: black; padding: 6px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; max-width: 250px;">
+        לחצו אנטר בכל שלב כדי לעבור לספירה לאחור
+    </div>
+    
     <h1 id="mainTitle" style="margin-top: 80px;">ה-ח-ת-ו-נ-ה</h1>
     <!-- ספירה לאחור - מוסתרת בהתחלה, תוצג במרכז הדף -->
     <div id="countdown" style="color:black; display:none; font-size: 60px; margin: 40px 0 20px 0;"></div>
-    <!-- פאנל הגדרות -->
-    <div id="settingsPanel" style="position: fixed; top: 20px; left: 20px; width: 420px; min-width: 400px; background: rgba(255,255,255,0.96); padding: 25px; border-radius: 12px; color: black; font-size: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 1000; max-height: 85vh; overflow-y: auto; border: 2px solid rgba(255,255,255,0.8);">
-        <h3 style="margin-top: 0; font-size: 18px; text-align: center; color: #333; margin-bottom: 20px;">⚙️ הגדרות </h3>
+    <!-- פאנל הגדרות - מוסתר בהתחלה -->
+    <div id="settingsPanel" style="position: fixed; top: 20px; left: 20px; width: 420px; min-width: 400px; background: rgba(255,255,255,0.96); padding: 25px; border-radius: 12px; color: black; font-size: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 1000; max-height: 85vh; overflow-y: auto; border: 2px solid rgba(255,255,255,0.8); display: none;">
+        <!-- <h3 style="margin-top: 0; font-size: 18px; text-align: center; color: #333; margin-bottom: 20px;">⚙️ הגדרות </h3> -->
         <div style="margin-top: 10px; font-size: 12px; color: #666;">
             לחצו אנטר בכל שלב כדי לעבור לספירה לאחור
         </div>
+        <button onclick="toggleSettings()" style="float: right; background: #f44336; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-top: -10px;">✕</button>
         <!-- הגדרות תאריך -->
         <div style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
             <h4 style="margin: 10px 0; color: #555; font-size: 15px;">📅 זמן החתונה</h4>
